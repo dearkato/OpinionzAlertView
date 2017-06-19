@@ -12,11 +12,13 @@
 #define kOpinionzButtonHeight 44
 #define kOpinionzTitleHeight  40
 #define kOpinionzHeaderHeight 80
+#define kOpinionzCloseButtonHeight 30
 
 #define kOpinionzTitleLeftMargin 10
 #define kOpinionzTitleRightMargin 10
 #define kOpinionzMessageLeftMargin 10
 #define kOpinionzMessageRightMargin 10
+#define kOpinionzButtonsMargin 10
 
 #define kOpinionzDefaultHeaderColor  [UIColor colorWithRed:0.8 green:0.13 blue:0.15 alpha:1]
 #define kOpinionzSeparatorColor      [UIColor colorWithRed:0.724 green:0.727 blue:0.731 alpha:1.000]
@@ -40,24 +42,46 @@
 #pragma mark - initializers
 
 - (instancetype)initWithTitle:(NSString *)title
+                   titleColor:(UIColor *)titleColor
                       message:(NSString *)message
+                 messageColor:(UIColor *)messageColor
+              isIconAlertType:(BOOL)isIconAlertType
             cancelButtonTitle:(NSString *)cancelButtonTitle
             otherButtonTitles:(NSArray *)otherButtonTitles
+            otherButtonColors:(NSArray *)otherButtonColors
+       otherButtonTitleColors:(NSArray *)otherButtonTitleColors
 {
     return [self initWithTitle:title
+                    titleColor:titleColor
                        message:message
+                  messageColor:messageColor
+               isIconAlertType:isIconAlertType
                       delegate:nil
              cancelButtonTitle:cancelButtonTitle
-             otherButtonTitles:otherButtonTitles];
+             otherButtonTitles:otherButtonTitles
+             otherButtonColors:otherButtonColors
+        otherButtonTitleColors:otherButtonTitleColors];
 }
 
 - (instancetype)initWithTitle:(NSString *)title
+                   titleColor:(UIColor *)titleColor
                       message:(NSString *)message
+                 messageColor:(UIColor *)messageColor
+              isIconAlertType:(BOOL)isIconAlertType
             cancelButtonTitle:(NSString *)cancelButtonTitle
             otherButtonTitles:(NSArray *)otherButtonTitles
+            otherButtonColors:(NSArray *)otherButtonColors
+       otherButtonTitleColors:(NSArray *)otherButtonTitleColors
       usingBlockWhenTapButton:(OpinionzPopupViewTapButtonBlock)tapButtonBlock
 {
-    self = [self initWithTitle:title message:message delegate:nil cancelButtonTitle:cancelButtonTitle otherButtonTitles:otherButtonTitles];
+    self = [self initWithTitle:title
+                    titleColor:titleColor
+                       message:message
+                  messageColor:messageColor
+               isIconAlertType:isIconAlertType
+                      delegate:nil cancelButtonTitle:cancelButtonTitle otherButtonTitles:otherButtonTitles
+             otherButtonColors:otherButtonColors
+        otherButtonTitleColors:otherButtonTitleColors];
     
     self.buttonDidTappedBlock = tapButtonBlock;
     
@@ -65,12 +89,24 @@
 }
 
 - (instancetype)initWithTitle:(NSString *)title
+                   titleColor:(UIColor *)titleColor
                       message:(NSString *)message
+                 messageColor:(UIColor *)messageColor
+              isIconAlertType:(BOOL)isIconAlertType
             cancelButtonTitle:(NSString *)cancelButtonTitle
             otherButtonTitles:(NSArray *)otherButtonTitles
             defaultHeaderIcon:(UIImage *)defaultIcon
+            otherButtonColors:(NSArray *)otherButtonColors
+       otherButtonTitleColors:(NSArray *)otherButtonTitleColors
 {
-    self = [self initWithTitle:title message:message delegate:nil cancelButtonTitle:cancelButtonTitle otherButtonTitles:otherButtonTitles];
+    self = [self initWithTitle:title
+                    titleColor:titleColor
+                       message:message
+                  messageColor:messageColor
+               isIconAlertType:isIconAlertType
+                      delegate:nil cancelButtonTitle:cancelButtonTitle otherButtonTitles:otherButtonTitles
+             otherButtonColors:otherButtonColors
+        otherButtonTitleColors:otherButtonTitleColors];
     
     self.icon = defaultIcon ;
     
@@ -78,10 +114,15 @@
 }
 
 - (instancetype)initWithTitle:(NSString *)title
+                   titleColor:(UIColor *)titleColor
                       message:(NSString *)message
+                 messageColor:(UIColor *)messageColor
+              isIconAlertType:(BOOL)isIconAlertType
                      delegate:(id /*<OpinionzAlertViewDelegate>*/)delegate
             cancelButtonTitle:(NSString *)cancelButtonTitle
             otherButtonTitles:(NSArray *)otherButtonTitles
+            otherButtonColors:(NSArray *)otherButtonColors
+    otherButtonTitleColors:(NSArray *)otherButtonTitleColors
 {
     self = [super init];
     if (self) {
@@ -96,7 +137,7 @@
         CGFloat screenHeight = screenSize.height;
         CGFloat screenWidth = screenSize.width;
         CGFloat headerHeight = kOpinionzHeaderHeight;
-        CGFloat titleHeight = kOpinionzTitleHeight;
+        CGFloat titleHeight = isIconAlertType ? kOpinionzTitleHeight : 0;
         
         // self
         [self setFrame:CGRectMake(0, 0, screenWidth, screenHeight)];
@@ -106,14 +147,14 @@
         // buttons height calculation
         CGFloat buttonsHeight = 0;
         
-        if (cancelButtonTitle || [otherButtonTitles count] == 1) {
+        if ([otherButtonTitles count] == 1) {
             buttonsHeight = kOpinionzButtonHeight;
         }
         
         // if more then 2 buttons, place buttons vertically, else show them horizontally
         if ([otherButtonTitles count] > 1) {
             
-            buttonsHeight += [otherButtonTitles count] * kOpinionzButtonHeight;
+            buttonsHeight += [otherButtonTitles count] * kOpinionzButtonHeight + [otherButtonTitles count] * kOpinionzButtonsMargin;
         }
         
         // alert height calculation
@@ -156,111 +197,96 @@
                                           | UIViewAutoresizingFlexibleRightMargin
                                           | UIViewAutoresizingFlexibleTopMargin
                                           | UIViewAutoresizingFlexibleWidth );
-        [self.headerView addSubview:self.iconImageView];
+        if (isIconAlertType) {
+            [self.headerView addSubview:self.iconImageView];
+        }
 
         // title label
         // title label
-        UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(kOpinionzTitleLeftMargin, CGRectGetHeight(self.headerView.frame), CGRectGetWidth(self.alertView.bounds) - kOpinionzTitleLeftMargin - kOpinionzTitleRightMargin, titleHeight)];
+        UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(kOpinionzTitleLeftMargin, (isIconAlertType) ? CGRectGetHeight(self.headerView.frame) : kOpinionzTitleRightMargin, CGRectGetWidth(self.alertView.bounds) - kOpinionzTitleLeftMargin - kOpinionzTitleRightMargin, kOpinionzTitleHeight)];
         [titleLabel setBackgroundColor:[UIColor clearColor]];
-        [titleLabel setTextColor:[UIColor blackColor]];
+        [titleLabel setTextColor:titleColor];
         [titleLabel setText:title];
         [titleLabel setTextAlignment:NSTextAlignmentCenter];
         [titleLabel setFont:[self titleFont]];
-        [self.alertView addSubview:titleLabel];
+        if (isIconAlertType) {
+            [self.alertView addSubview:titleLabel];
+        } else {
+            [self.headerView addSubview:titleLabel];
+        }
+        
 
         // message view
         CGFloat newLineHeight = [self boundingRectHeightWithText:message font:[self messageFont]];
-        UITextView *messageView = [[UITextView alloc] initWithFrame:CGRectMake(kOpinionzTitleLeftMargin, CGRectGetHeight(titleLabel.frame) + CGRectGetHeight(self.headerView.frame) - 10, CGRectGetWidth(self.alertView.bounds) - kOpinionzMessageLeftMargin - kOpinionzMessageRightMargin, newLineHeight)];
+        UITextView *messageView = [[UITextView alloc] initWithFrame:CGRectMake(kOpinionzTitleLeftMargin, CGRectGetHeight(titleLabel.frame) + ((isIconAlertType) ? CGRectGetHeight(self.headerView.frame) : kOpinionzTitleRightMargin) - 10, CGRectGetWidth(self.alertView.bounds) - kOpinionzMessageLeftMargin - kOpinionzMessageRightMargin, newLineHeight)];
         [messageView setText:message];
-        [messageView setTextColor:[UIColor blackColor]];
+        [messageView setTextColor:messageColor];
         [messageView setTextAlignment:NSTextAlignmentCenter];
         [messageView setFont:[self messageFont]];
         [messageView setEditable:NO];
         [messageView setUserInteractionEnabled:NO];
         [messageView setDataDetectorTypes:UIDataDetectorTypeNone];
         [messageView setBackgroundColor:[UIColor clearColor]];
-        [self.alertView addSubview:messageView];
+        if (isIconAlertType) {
+            [self.alertView addSubview:messageView];
+        } else {
+            [self.headerView addSubview:messageView];
+        }
         
         // buttons view
-        UIView *buttonView = [[UIView alloc] initWithFrame:CGRectMake(0, alertHeight - buttonsHeight, kOpinionzAlertWidth, buttonsHeight)];
+        UIView *buttonView = [[UIView alloc] initWithFrame:CGRectMake(0, (isIconAlertType) ? alertHeight - buttonsHeight : CGRectGetHeight(self.headerView.frame) + kOpinionzTitleLeftMargin * 2.0, kOpinionzAlertWidth, buttonsHeight)];
         [buttonView setBackgroundColor:[UIColor clearColor]];
         [self.alertView addSubview:buttonView];
 
         // horizontal separator
-        CALayer *horizontalBorder = [self separatorAt:CGRectMake(0, 0, buttonView.frame.size.width, 0.5)];
-        [buttonView.layer addSublayer:horizontalBorder];
+//        CALayer *horizontalBorder = [self separatorAt:CGRectMake(0, 0, buttonView.frame.size.width, 0.5)];
+//        [buttonView.layer addSublayer:horizontalBorder];
 
         // adds border between 2 buttons
-        if ((cancelButtonTitle && [otherButtonTitles count] == 1) ||
-            ([otherButtonTitles count] == 2 && !cancelButtonTitle)) {
-            CALayer *centerBorder = [CALayer layer];
-            centerBorder.frame = CGRectMake((CGRectGetWidth(buttonView.frame) - 0.5)/2, 0.0f, 0.5f, CGRectGetHeight(buttonView.frame));
-            centerBorder.backgroundColor = kOpinionzSeparatorColor.CGColor;
-            [buttonView.layer addSublayer:centerBorder];
-        }
+//        if ((cancelButtonTitle && [otherButtonTitles count] == 1) ||
+//            ([otherButtonTitles count] == 2 && !cancelButtonTitle)) {
+//            CALayer *centerBorder = [CALayer layer];
+//            centerBorder.frame = CGRectMake((CGRectGetWidth(buttonView.frame) - 0.5)/2, 0.0f, 0.5f, CGRectGetHeight(buttonView.frame));
+//            centerBorder.backgroundColor = kOpinionzSeparatorColor.CGColor;
+//            [buttonView.layer addSublayer:centerBorder];
+//        }
         [self.alertView addSubview:buttonView];
         
         // setup cancel button
-        if (cancelButtonTitle) {
-            
+//        if (cancelButtonTitle) {
+        
             UIButton *cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
-            if ([otherButtonTitles count] == 1) {
-                // Cancel button & 1 other button
-                cancelButton.frame = CGRectMake(0, 0, kOpinionzAlertWidth/2, kOpinionzButtonHeight);
-            }
-            else {
-                // Cancel button + multiple other buttons
-                cancelButton.frame = CGRectMake(0, buttonsHeight-41+0.5, kOpinionzAlertWidth, kOpinionzButtonHeight);
-            }
+                cancelButton.frame = CGRectMake(CGRectGetWidth(self.alertView.bounds) - kOpinionzCloseButtonHeight - kOpinionzButtonsMargin, kOpinionzButtonsMargin, kOpinionzCloseButtonHeight, kOpinionzCloseButtonHeight);
 
-            [cancelButton setTitle:cancelButtonTitle forState:UIControlStateNormal];
-            [cancelButton setTitleColor:kOpinionzBlueTitleColor forState:UIControlStateNormal];
-            [cancelButton setTitleColor:kOpinionzLightBlueTitleColor forState:UIControlStateHighlighted];
-            [cancelButton setTitleColor:kOpinionzLightBlueTitleColor forState:UIControlStateSelected];
+        [cancelButton setImage:[UIImage imageNamed:@"close-circle"] forState:UIControlStateNormal];
             [cancelButton setBackgroundColor:[UIColor clearColor]];
             cancelButton.titleLabel.font = [self cancelButtonFont];
             [cancelButton addTarget:self action:@selector(alertButtonDidTapped:) forControlEvents:UIControlEventTouchUpInside];
-            [cancelButton setTag:0];
-            [buttonView addSubview:cancelButton];
-        }
+            [cancelButton setTag:-1];
+            [self.alertView addSubview:cancelButton];
+//        }
 
         // setup other buttons
         for (int i = 0; i < [otherButtonTitles count]; i++) {
             UIButton *otherTitleButton = [UIButton buttonWithType:UIButtonTypeCustom];
             
-            if ([otherButtonTitles count] == 1 && !cancelButtonTitle) {
-                // 1 other button and no cancel button
-                otherTitleButton.frame = CGRectMake(0, 0, kOpinionzAlertWidth, kOpinionzButtonHeight);
-                otherTitleButton.tag = 0;
-            }
-            else if (([otherButtonTitles count] == 2 && !cancelButtonTitle) ||
-                     ([otherButtonTitles count] == 1 && cancelButtonTitle)) {
-                // 2 other buttons, no cancel or 1 other button and cancel
-                otherTitleButton.tag = i+1;
-                otherTitleButton.frame = CGRectMake(140.5, 0, 139.5, kOpinionzButtonHeight);
-            }
-            else if ([otherButtonTitles count] >= 2) {
-                if (cancelButtonTitle) {
-                    otherTitleButton.frame = CGRectMake(0, (i*kOpinionzButtonHeight)+0.5, kOpinionzAlertWidth, kOpinionzButtonHeight);
-                    otherTitleButton.tag = i+1;
-                }
-                else {
-                    otherTitleButton.frame = CGRectMake(0, i*kOpinionzButtonHeight, kOpinionzAlertWidth, kOpinionzButtonHeight);
+                    otherTitleButton.frame = CGRectMake(kOpinionzTitleLeftMargin, i*(kOpinionzButtonHeight + kOpinionzButtonsMargin), kOpinionzAlertWidth - kOpinionzTitleLeftMargin - kOpinionzTitleRightMargin, kOpinionzButtonHeight);
                     otherTitleButton.tag = i;
-                }
-                CALayer *horizontalBorder = [CALayer layer];
-                CGFloat borderY = CGRectGetMaxY(otherTitleButton.frame)-0.5;
-                horizontalBorder.frame = CGRectMake(0.0f, borderY, buttonView.frame.size.width, 0.5f);
-                horizontalBorder.backgroundColor = [UIColor colorWithRed:0.724 green:0.727 blue:0.731 alpha:1.000].CGColor;
-                [buttonView.layer addSublayer:horizontalBorder];
-            }
+                
+                otherTitleButton.layer.cornerRadius = 6.0;
+                otherTitleButton.layer.masksToBounds = YES;
+//                CALayer *horizontalBorder = [CALayer layer];
+//                CGFloat borderY = CGRectGetMaxY(otherTitleButton.frame)-0.5;
+//                horizontalBorder.frame = CGRectMake(0.0f, borderY, buttonView.frame.size.width, 0.5f);
+//                horizontalBorder.backgroundColor = [UIColor colorWithRed:0.724 green:0.727 blue:0.731 alpha:1.000].CGColor;
+//                [buttonView.layer addSublayer:horizontalBorder];
             
             [otherTitleButton addTarget:self action:@selector(alertButtonDidTapped:) forControlEvents:UIControlEventTouchUpInside];
             [otherTitleButton setTitle:otherButtonTitles[i] forState:UIControlStateNormal];
-            [otherTitleButton setTitleColor:kOpinionzBlueTitleColor forState:UIControlStateNormal];
-            [otherTitleButton setTitleColor:kOpinionzLightBlueTitleColor forState:UIControlStateHighlighted];
-            [otherTitleButton setTitleColor:kOpinionzLightBlueTitleColor forState:UIControlStateSelected];
-            [otherTitleButton setBackgroundColor:[UIColor clearColor]];
+            [otherTitleButton setTitleColor:otherButtonTitleColors[i] forState:UIControlStateNormal];
+//            [otherTitleButton setTitleColor:kOpinionzLightBlueTitleColor forState:UIControlStateHighlighted];
+//            [otherTitleButton setTitleColor:kOpinionzLightBlueTitleColor forState:UIControlStateSelected];
+            [otherTitleButton setBackgroundColor:otherButtonColors[i]];
             otherTitleButton.titleLabel.font = [self buttonsFont];
             [buttonView addSubview:otherTitleButton];
         }
