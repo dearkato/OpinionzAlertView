@@ -32,26 +32,46 @@ typedef void (^OpinionzPopupViewTapButtonBlock)(OpinionzAlertView *alertView, NS
 @property (nonatomic, assign) OpinionzAlertIcon iconType;
 
 - (instancetype)initWithTitle:(NSString *)title
+                   titleColor:(UIColor *)titleColor
                       message:(NSString *)message
-            cancelButtonTitle:(NSString *)cancelButtonTitle
-            otherButtonTitles:(NSArray *)otherButtonTitles;
-
-- (instancetype)initWithTitle:(NSString *)title
-                      message:(NSString *)message
+                 messageColor:(UIColor *)messageColor
+              isIconAlertType:(BOOL)isIconAlertType
             cancelButtonTitle:(NSString *)cancelButtonTitle
             otherButtonTitles:(NSArray *)otherButtonTitles
-            defaultHeaderIcon:(UIImage *)defaultIcon;
+            defaultHeaderIcon:(UIImage *)defaultIcon
+            otherButtonColors:(NSArray *)otherButtonColors
+       otherButtonTitleColors:(NSArray *)otherButtonTitleColors;
 
 - (instancetype)initWithTitle:(NSString *)title
+                   titleColor:(UIColor *)titleColor
                       message:(NSString *)message
+                 messageColor:(UIColor *)messageColor
+              isIconAlertType:(BOOL)isIconAlertType
+            cancelButtonTitle:(NSString *)cancelButtonTitle
+            otherButtonTitles:(NSArray *)otherButtonTitles
+            otherButtonColors:(NSArray *)otherButtonColors
+       otherButtonTitleColors:(NSArray *)otherButtonTitleColors;
+
+- (instancetype)initWithTitle:(NSString *)title
+                   titleColor:(UIColor *)titleColor
+                      message:(NSString *)message
+                 messageColor:(UIColor *)messageColor
+              isIconAlertType:(BOOL)isIconAlertType
                      delegate:(id /*<OpinionzAlertViewDelegate>*/)delegate
             cancelButtonTitle:(NSString *)cancelButtonTitle
-            otherButtonTitles:(NSArray *)otherButtonTitles;
+            otherButtonTitles:(NSArray *)otherButtonTitles
+            otherButtonColors:(NSArray *)otherButtonColors
+       otherButtonTitleColors:(NSArray *)otherButtonTitleColors;
 
 - (instancetype)initWithTitle:(NSString *)title
+                   titleColor:(UIColor *)titleColor
                       message:(NSString *)message
+                 messageColor:(UIColor *)messageColor
+              isIconAlertType:(BOOL)isIconAlertType
             cancelButtonTitle:(NSString *)cancelButtonTitle
             otherButtonTitles:(NSArray *)otherButtonTitles
+            otherButtonColors:(NSArray *)otherButtonColors
+       otherButtonTitleColors:(NSArray *)otherButtonTitleColors
       usingBlockWhenTapButton:(OpinionzPopupViewTapButtonBlock)tapButtonBlock;
 
 - (void)show;
